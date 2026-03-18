@@ -25,8 +25,10 @@ class AddBlackOpsFieldsToDominionsTable extends Migration
             $table->integer('wizard_resilience')->after('spy_resilience')->default(0);
         });
 
-        DB::statement('ALTER TABLE dominions CHANGE COLUMN stat_spy_prestige spy_mastery int(10) unsigned NOT NULL default 0 AFTER wizard_resilience;');
-        DB::statement('ALTER TABLE dominions CHANGE COLUMN stat_wizard_prestige wizard_mastery int(10) unsigned NOT NULL default 0 AFTER spy_mastery;');
+        Schema::table('dominions', function (Blueprint $table) {
+            $table->renameColumn('stat_spy_prestige', 'spy_mastery');
+            $table->renameColumn('stat_wizard_prestige', 'wizard_mastery');
+        });
 
         DB::table('daily_rankings')->where('key', 'spy-prestige')->update([
             'key' => 'spy-mastery'
@@ -56,8 +58,10 @@ class AddBlackOpsFieldsToDominionsTable extends Migration
             $table->dropColumn('wizard_resilience');
         });
 
-        DB::statement('ALTER TABLE dominions CHANGE COLUMN spy_mastery stat_spy_prestige int(10) unsigned NOT NULL default 0 AFTER stat_total_gems_stolen;');
-        DB::statement('ALTER TABLE dominions CHANGE COLUMN wizard_mastery stat_wizard_prestige int(10) unsigned NOT NULL default 0 AFTER stat_spy_prestige;');
+        Schema::table('dominions', function (Blueprint $table) {
+            $table->renameColumn('spy_mastery', 'stat_spy_prestige');
+            $table->renameColumn('wizard_mastery', 'stat_wizard_prestige');
+        });
 
         DB::table('daily_rankings')->where('key', 'spy-mastery')->update([
             'key' => 'spy-prestige'

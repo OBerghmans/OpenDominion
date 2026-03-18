@@ -13,9 +13,11 @@ class UpdateStartDateInRounds extends Migration
      */
     public function up()
     {
-        DB::table('rounds')->update([
-            'start_date' => DB::raw('`start_date` + INTERVAL 72 HOUR'),
-        ]);
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::table('rounds')->update([
+                'start_date' => DB::raw('`start_date` + INTERVAL 72 HOUR'),
+            ]);
+        }
     }
 
     /**
@@ -25,8 +27,10 @@ class UpdateStartDateInRounds extends Migration
      */
     public function down()
     {
-        DB::table('rounds')->update([
-            'start_date' => DB::raw('`start_date` - INTERVAL 72 HOUR'),
-        ]);
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::table('rounds')->update([
+                'start_date' => DB::raw('`start_date` - INTERVAL 72 HOUR'),
+            ]);
+        }
     }
 }

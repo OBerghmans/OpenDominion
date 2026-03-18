@@ -47,19 +47,15 @@ class RefactorPacks extends Migration
 
         Schema::table('packs', function (Blueprint $table) {
             // Drop foreign keys
-            if (DB::getDriverName() !== 'sqlite') {
-                $table->dropForeign(['round_id']);
-                $table->dropForeign(['user_id']);
-                $table->dropForeign(['realm_id']);
-            }
+            $table->dropForeign(['round_id']);
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['realm_id']);
 
             // Drop unique keys
-            if (DB::getDriverName() !== 'sqlite') {
-                $table->dropUnique(['round_id', 'user_id']);
-                $table->dropUnique(['user_id', 'round_id']);
-                $table->dropUnique(['name', 'round_id']);
-                $table->dropUnique(['password', 'round_id', 'name']);
-            }
+            $table->dropUnique(['round_id', 'user_id']);
+            $table->dropUnique(['user_id', 'round_id']);
+            $table->dropUnique(['name', 'round_id']);
+            $table->dropUnique(['password', 'round_id', 'name']);
 
             // Drop user_id
             $table->dropColumn('user_id');

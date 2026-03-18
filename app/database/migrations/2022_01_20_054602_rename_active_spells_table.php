@@ -20,8 +20,13 @@ class RenameActiveSpellsTable extends Migration
 
         Schema::table('dominion_spells', function (Blueprint $table) {
             $table->unsignedInteger('spell_id')->after('spell');
-            $table->dropForeign('active_spells_dominion_id_foreign');
-            $table->dropForeign('active_spells_cast_by_dominion_id_foreign');
+            if (DB::getDriverName() === 'sqlite') {
+                $table->dropForeign(['dominion_id']);
+                $table->dropForeign(['cast_by_dominion_id']);
+            } else {
+                $table->dropForeign('active_spells_dominion_id_foreign');
+                $table->dropForeign('active_spells_cast_by_dominion_id_foreign');
+            }
             $table->dropPrimary();
             $table->primary(['dominion_id', 'spell_id']);
             $table->foreign('spell_id')->references('id')->on('spells');

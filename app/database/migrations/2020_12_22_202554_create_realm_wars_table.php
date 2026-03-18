@@ -46,7 +46,7 @@ class CreateRealmWarsTable extends Migration
         }
 
         Schema::table('realms', function (Blueprint $table) {
-            $table->dropForeign('realms_war_realm_id_foreign');
+            $table->dropForeign(['war_realm_id']);
             $table->dropColumn('war_realm_id');
             $table->dropColumn('war_active_at');
         });
