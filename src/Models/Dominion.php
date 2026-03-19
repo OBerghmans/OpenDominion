@@ -423,7 +423,11 @@ class Dominion extends AbstractModel
         foreach ($deltaAttributes as $attr => $value) {
             if (gettype($this->getAttribute($attr)) != 'boolean') {
                 $wrapped = $query->toBase()->grammar->wrap($attr);
-                $dirty[$attr] = $query->toBase()->raw("$wrapped + $value");
+                if (\DB::getDriverName() === 'sqlite' && ($this->getCasts()[$attr] ?? null) === 'integer') {
+                    $dirty[$attr] = $query->toBase()->raw("CAST($wrapped + $value AS INTEGER)");
+                } else {
+                    $dirty[$attr] = $query->toBase()->raw("$wrapped + $value");
+                }
             }
         }
 
