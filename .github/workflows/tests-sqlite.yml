@@ -1,0 +1,42 @@
+name: Tests (SQLite)
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Setup PHP with PECL extension
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        extensions: mbstring, pdo, pdo_sqlite, xml, ctype, json, bcmath, curl
+        coverage: none
+
+    - name: Install PHP dependencies
+      run: composer install --no-interaction --prefer-dist
+
+    - name: Setup .env file
+      run: |
+        cp .env.ci .env
+        sed -i 's/^APP_ENV=.*/APP_ENV=testing/' .env
+        sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+        sed -i 's/^DB_DATABASE=.*/DB_DATABASE=${{ github.workspace }}\/storage\/testing.sqlite/' .env
+        php artisan key:generate
+
+    - name: Create dummy mix-manifest.json file
+      run: echo '{"/assets/app/css/app.css":"/dummy","/assets/app/js/app.js":"/dummy"}' > public/mix-manifest.json
+
+    - name: Run database migrations
+      run: php artisan migrate
+
+    - name: Seed database
+      run: php artisan db:seed
+
+    - name: Sync game data
+      run: php artisan game:data:sync
+
+    - name: Run tests
+      run: vendor/bin/phpunit
