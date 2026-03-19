@@ -423,8 +423,11 @@ class Dominion extends AbstractModel
         foreach ($deltaAttributes as $attr => $value) {
             if (gettype($this->getAttribute($attr)) != 'boolean') {
                 $wrapped = $query->toBase()->grammar->wrap($attr);
-                if (\DB::getDriverName() === 'sqlite' && ($this->getCasts()[$attr] ?? null) === 'integer') {
-                    $dirty[$attr] = $query->toBase()->raw("CAST($wrapped + $value AS INTEGER)");
+                if (($this->getCasts()[$attr] ?? null) === 'integer') {
+                    // Bitwise OR with 0 coerces the column to integer before addition,
+                    // preventing float drift when SQLite stores a column as REAL.
+                    // This is standard SQL supported by both MySQL and SQLite.
+                    $dirty[$attr] = $query->toBase()->raw("($wrapped | 0) + $value");
                 } else {
                     $dirty[$attr] = $query->toBase()->raw("$wrapped + $value");
                 }
